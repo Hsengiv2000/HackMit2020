@@ -1,6 +1,11 @@
 const express = require('express')
 const app = express();
 //"BQAk6P9MSJ45owcNVqeIfdRj9KGRvNOummFblWBEYAVZX49Ew30aT2c89utCrJCX1juYrAPeA7w1r751p6bMH6Fxwa4nJZ2gFhH2ThsF2VC2Sk-xKw4LdZ0bQB13b2csqAmJxGRI4WGtLjWXR8yGesgQmuH6rGDt"
+const cors = require("cors");
+//var compression = require('compression');
+//app.use(compression());
+app.use(express.static('public'));
+app.use(cors({credentials: true}));
 class User {
     constructor(authKey) {
       this.authKey = authKey;
@@ -58,9 +63,14 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 });
 app.get("/gettrack" , (req,res)=>{
-    trackname=req.query.track
+id = req.query.id    
+trackname=req.query.track
     try{
-    Users["BQBzl9i4jSlBb7PGrIL6XeEYP0DdRI9zPGrc4WOhZUDD49U3awT32mzZcKZSjfdWLUqFimKToCU9m1L2aRmmp5ucboTz93a_89t_3m26WkIUZSRF7GTMrRgAQHuVixleZvoJQw1R031waaB3aFH3n1PoOjCsIbU6"].getTracks(trackname, (output)=>{res.send(output)});
+    Users[id].getTracks(trackname, (output)=>{
+res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(output));
+//res.send(output)
+});
     }
     catch(error){
 console.log(error)
@@ -83,3 +93,52 @@ app.listen(8000, () => {
 app.get('/', (req, res) => {
     res.send('Hello World!')
   });
+  class SpotifyConstants {
+      constructor(){
+      this.CLIENT_ID = "bcac94c5e73345bd9e108357d7680a42"
+      this.CLIENT_SECRET = "49da45b67bf342aa828dcc189d67c036" // NEED TO MOVE THIS TO A SERVER REQ
+      this.SCOPE= "user-read-email"
+      this.REDIRECT_URI="spotify-ios-quick-start://spotify-login-callback"
+      this.CODE = ""
+      this.ACCESS_TOKEN = ""
+
+      }
+      makerefreshtoken(codee, cb){
+        const request = require('request');
+
+        const options = {
+            method: 'POST',
+            url: 'https://accounts.spotify.com/api/token',
+            json: true,
+            form: {
+                client_id: this.CLIENT_ID,
+                code: codee,
+                grant_type:"authorization_code",
+                redirect_uri:this.REDIRECT_URI,
+                client_secret:this.CLIENT_SECRET,
+            },
+          //  headers: {
+           //     'Content-Type': 'application/x-www-form-urlencoded',
+
+            //}
+        };
+        
+        request.post(options, (err, res, body) => {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(res.body)
+            console.log(`Status: ${res.statusCode}`);
+            console.log(body);
+            cb(body)
+        });
+
+      }
+}
+app.get('/refreshtoken', (req, res) => {
+    code = req.query.code
+    console.log(typeof(code))
+    new SpotifyConstants().makerefreshtoken(code,(output)=>{res.send(output)})
+    
+  });
+
