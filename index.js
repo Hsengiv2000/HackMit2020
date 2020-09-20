@@ -51,6 +51,16 @@ class User {
           console.error(err);
         })
     }
+  getMe(cb){
+        this.spotifyApi.getMe()
+        .then(function(data) {
+          console.log('Some information about the authenticated user', data.body);
+            cb(data.body)
+        }, function(err) {
+          console.log('Something went wrong!', err);
+        });
+
+    }
   }
 var Users = new Object()
 app.get("/createuser" , (req,res)=>{
@@ -134,6 +144,38 @@ app.get('/', (req, res) => {
         });
 
       }
+makerefreshtokenfromrefresh(codee, cb){
+        const request = require('request');
+       
+        const options = {
+            method: 'POST',
+            url: 'https://accounts.spotify.com/api/token',
+            json: true,
+            form: {
+               
+            
+                grant_type:"refresh_token",
+                refresh_token:codee,
+                
+            },
+           headers: {
+               Authorization: "Basic YmNhYzk0YzVlNzMzNDViZDllMTA4MzU3ZDc2ODBhNDI6NDlkYTQ1YjY3YmYzNDJhYTgyOGRjYzE4OWQ2N2MwMzY="
+           //     'Content-Type': 'application/x-www-form-urlencoded',
+
+            }
+        };
+        
+        request.post(options, (err, res, body) => {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(res.body)
+            console.log(`Status: ${res.statusCode}`);
+            console.log(body);
+            cb(body)
+        });
+
+      }
 }
 app.get('/refreshtoken', (req, res) => {
     code = req.query.code
@@ -142,3 +184,15 @@ app.get('/refreshtoken', (req, res) => {
     
   });
 
+app.get('/accessusingrefresh', (req, res) => {
+    code = req.query.code
+    console.log(typeof(code))
+    new SpotifyConstants().makerefreshtokenfromrefresh(code,(output)=>{res.send(output)})
+    
+  });
+app.get("/me" , (req,res)=>{
+id = req.query.id
+Users[id] = new User(id)
+Users[id].getMe((output)=>{res.send(output)})
+
+});
