@@ -74,6 +74,7 @@ app.get('/', (req, res) => {
 });
 app.get("/gettrack" , (req,res)=>{
 id = req.query.id    
+Users[id] = new User(id)
 trackname=req.query.track
     try{
     Users[id].getTracks(trackname, (output)=>{
@@ -107,7 +108,7 @@ app.get('/', (req, res) => {
       constructor(){
       this.CLIENT_ID = "bcac94c5e73345bd9e108357d7680a42"
       this.CLIENT_SECRET = "49da45b67bf342aa828dcc189d67c036" // NEED TO MOVE THIS TO A SERVER REQ
-      this.SCOPE= "user-read-email"
+      this.SCOPE= "user-read-email user-modify-playback-state"
       this.REDIRECT_URI="spotify-ios-quick-start://spotify-login-callback"
       this.CODE = ""
       this.ACCESS_TOKEN = ""
@@ -123,6 +124,7 @@ app.get('/', (req, res) => {
             form: {
                 client_id: this.CLIENT_ID,
                 code: codee,
+                scope: this.SCOPE,
                 grant_type:"authorization_code",
                 redirect_uri:this.REDIRECT_URI,
                 client_secret:this.CLIENT_SECRET,
@@ -156,6 +158,7 @@ makerefreshtokenfromrefresh(codee, cb){
             
                 grant_type:"refresh_token",
                 refresh_token:codee,
+                scope: this.SCOPE,
                 
             },
            headers: {
