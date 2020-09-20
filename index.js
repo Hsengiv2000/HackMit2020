@@ -51,6 +51,30 @@ class User {
           console.error(err);
         })
     }
+  getTopArtists(type, cb){
+        var request = require('request');
+
+        var headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '+ this.authKey,
+        };
+        
+        var options = {
+            url: 'https://api.spotify.com/v1/me/top/'+type,
+            headers: headers
+        };
+        
+        function callback(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log(body);
+                cb(body)
+            }
+        }
+        
+        request(options, callback);
+        
+      }
   getMe(cb){
         this.spotifyApi.getMe()
         .then(function(data) {
@@ -198,4 +222,11 @@ id = req.query.id
 Users[id] = new User(id)
 Users[id].getMe((output)=>{res.send(output)})
 
+});
+
+app.get("/top" , (req,res)=>{
+id = req.query.id
+type= req.query.type
+Users[id]=new User(id)
+Users[id].getTopArtists(type, (output)=>{res.send(output)})
 });
