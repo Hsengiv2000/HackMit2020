@@ -61,7 +61,7 @@ class User {
         };
         
         var options = {
-            url: 'https://api.spotify.com/v1/me/top/'+type,
+            url: 'https://api.spotify.com/v1/me/top/'+type+"?limit=6",
             headers: headers
         };
         
@@ -132,7 +132,7 @@ app.get('/', (req, res) => {
       constructor(){
       this.CLIENT_ID = "bcac94c5e73345bd9e108357d7680a42"
       this.CLIENT_SECRET = "49da45b67bf342aa828dcc189d67c036" // NEED TO MOVE THIS TO A SERVER REQ
-      this.SCOPE= "user-read-email user-modify-playback-state"
+      this.SCOPE= "user-read-email user-modify-playback-state user-top-read"
       this.REDIRECT_URI="spotify-ios-quick-start://spotify-login-callback"
       this.CODE = ""
       this.ACCESS_TOKEN = ""
